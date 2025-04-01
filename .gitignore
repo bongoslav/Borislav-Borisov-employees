@@ -2,3 +2,5 @@ node_modules
 notes.md
 generated/prisma/
 .env
+rest.txt
+dist
