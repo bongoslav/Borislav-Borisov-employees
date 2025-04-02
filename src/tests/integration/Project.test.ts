@@ -1,14 +1,22 @@
 import request from 'supertest';
 import { Express } from 'express';
 import { createTestApp } from '../testApp';
-import { mockPrisma } from '../setup';
+import { mockPrisma, mockUserService } from '../setup';
 
 describe('Project API', () => {
     let app: Express;
+    const authToken = 'test-token';
 
     beforeEach(() => {
         jest.clearAllMocks();
         app = createTestApp();
+        
+        // mock the user authentication
+        mockUserService.findById.mockResolvedValue({
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com'
+        });
     });
 
     describe('GET /api/v1/projects', () => {
@@ -22,6 +30,7 @@ describe('Project API', () => {
 
             const response = await request(app)
                 .get('/api/v1/projects')
+                .set('Authorization', `Bearer ${authToken}`)
                 .expect(200);
 
             expect(mockPrisma.project.findMany).toHaveBeenCalled();
@@ -41,6 +50,7 @@ describe('Project API', () => {
 
             const response = await request(app)
                 .get('/api/v1/projects/1')
+                .set('Authorization', `Bearer ${authToken}`)
                 .expect(200);
 
             expect(mockPrisma.project.findUnique).toHaveBeenCalledWith({
@@ -54,6 +64,7 @@ describe('Project API', () => {
 
             await request(app)
                 .get('/api/v1/projects/999')
+                .set('Authorization', `Bearer ${authToken}`)
                 .expect(404);
 
             expect(mockPrisma.project.findUnique).toHaveBeenCalledWith({
@@ -165,7 +176,10 @@ describe('Project API', () => {
         it('should return 404 when project not found', async () => {
             const projectId = 999;
 
-            mockPrisma.project.delete.mockRejectedValue(new Error('Project not found'));
+            // customize the error for appropriate 404 handling
+            const notFoundError = new Error('Project not found');
+            (notFoundError as any).code = 'P2025'; // Prisma not found error code
+            mockPrisma.project.delete.mockRejectedValue(notFoundError);
 
             await request(app)
                 .delete(`/api/v1/projects/${projectId}`)

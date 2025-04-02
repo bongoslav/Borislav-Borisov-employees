@@ -1,8 +1,7 @@
 import request from 'supertest';
 import { Express } from 'express';
-import { Container } from 'typedi';
 import { createTestApp } from '../testApp';
-import { mockPrisma } from '../setup';
+import { mockUserService } from '../setup';
 import * as bcrypt from 'bcrypt';
 
 describe('Auth API', () => {
@@ -21,9 +20,8 @@ describe('Auth API', () => {
                 password: 'password123'
             };
 
-            mockPrisma.user.findUnique.mockResolvedValue(null);
-
-            mockPrisma.user.create.mockResolvedValue({
+            mockUserService.findByEmail.mockResolvedValue(null);
+            mockUserService.create.mockResolvedValue({
                 id: 1,
                 name: userData.name,
                 email: userData.email,
@@ -35,10 +33,8 @@ describe('Auth API', () => {
                 .send(userData)
                 .expect(200);
 
-            expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-                where: { email: userData.email }
-            });
-            expect(mockPrisma.user.create).toHaveBeenCalled();
+            expect(mockUserService.findByEmail).toHaveBeenCalledWith(userData.email);
+            expect(mockUserService.create).toHaveBeenCalledWith(userData);
             expect(response.body).toEqual({
                 user: {
                     id: 1,
@@ -55,7 +51,7 @@ describe('Auth API', () => {
                 password: 'password123'
             };
 
-            mockPrisma.user.findUnique.mockResolvedValue({
+            mockUserService.findByEmail.mockResolvedValue({
                 id: 1,
                 name: userData.name,
                 email: userData.email,
@@ -67,10 +63,8 @@ describe('Auth API', () => {
                 .send(userData)
                 .expect(400);
 
-            expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-                where: { email: userData.email }
-            });
-            expect(mockPrisma.user.create).not.toHaveBeenCalled();
+            expect(mockUserService.findByEmail).toHaveBeenCalledWith(userData.email);
+            expect(mockUserService.create).not.toHaveBeenCalled();
         });
     });
 
@@ -81,7 +75,7 @@ describe('Auth API', () => {
                 password: 'password123'
             };
 
-            mockPrisma.user.findUnique.mockResolvedValue({
+            mockUserService.findByEmail.mockResolvedValue({
                 id: 1,
                 name: 'Test User',
                 email: credentials.email,
@@ -95,9 +89,7 @@ describe('Auth API', () => {
                 .send(credentials)
                 .expect(200);
 
-            expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-                where: { email: credentials.email }
-            });
+            expect(mockUserService.findByEmail).toHaveBeenCalledWith(credentials.email);
             expect(bcrypt.compare).toHaveBeenCalled();
             expect(response.body).toHaveProperty('token');
             expect(response.body).toHaveProperty('user');
@@ -114,16 +106,14 @@ describe('Auth API', () => {
                 password: 'password123'
             };
 
-            mockPrisma.user.findUnique.mockResolvedValue(null);
+            mockUserService.findByEmail.mockResolvedValue(null);
 
             await request(app)
                 .post('/api/v1/auth/login')
                 .send(credentials)
                 .expect(404);
 
-            expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-                where: { email: credentials.email }
-            });
+            expect(mockUserService.findByEmail).toHaveBeenCalledWith(credentials.email);
             expect(bcrypt.compare).not.toHaveBeenCalled();
         });
 
@@ -133,7 +123,7 @@ describe('Auth API', () => {
                 password: 'wrongpassword'
             };
 
-            mockPrisma.user.findUnique.mockResolvedValue({
+            mockUserService.findByEmail.mockResolvedValue({
                 id: 1,
                 name: 'Test User',
                 email: credentials.email,
@@ -147,9 +137,7 @@ describe('Auth API', () => {
                 .send(credentials)
                 .expect(401);
 
-            expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-                where: { email: credentials.email }
-            });
+            expect(mockUserService.findByEmail).toHaveBeenCalledWith(credentials.email);
             expect(bcrypt.compare).toHaveBeenCalled();
         });
     });

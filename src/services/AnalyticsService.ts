@@ -2,7 +2,8 @@ import { Service } from "typedi";
 import { prisma } from "../app";
 import fs from "fs";
 import csv from "csv-parser";
-import { subDays, parseISO, differenceInDays, startOfDay } from "date-fns";
+import { differenceInDays } from "date-fns";
+import { logger } from "utils/logger";
 
 interface CollaborationTime {
 	emp1Id: number;
@@ -61,7 +62,7 @@ export class AnalyticsService {
 	}
 
 	private async processChunk(chunk: any[]) {
-		console.log(`Processing chunk of ${chunk.length} rows...`);
+		logger.info(`Processing chunk of ${chunk.length} rows...`);
 
 		await Promise.all(
 			chunk.map(async (data) => {
@@ -100,10 +101,10 @@ export class AnalyticsService {
 			})
 		);
 
-		console.log(`Chunk processed successfully.`);
+		logger.info(`Chunk processed successfully.`);
 	}
 
-	async findLongestCollaboration2(): Promise<{
+	async findLongestCollaboration(): Promise<{
 		emp1Id: number;
 		emp2Id: number;
 		totalDays: number;
@@ -149,10 +150,8 @@ export class AnalyticsService {
 					);
 
 					if (overlapStart <= overlapEnd) {
-						const overlapDays = Math.floor(
-							(overlapEnd.getTime() - overlapStart.getTime()) /
-							(1000 * 60 * 60 * 24) // ms to days
-						);
+						// Calculate days of overlap including the start and end dates
+						const overlapDays = differenceInDays(overlapEnd, overlapStart) + 1;
 
 						// accumulate total collaboration time for this unique pair
 						const minEmpId = Math.min(emp1.employeeId, emp2.employeeId);

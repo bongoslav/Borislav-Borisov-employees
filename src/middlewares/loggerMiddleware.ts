@@ -7,6 +7,10 @@ import { logger } from '../utils/logger';
 @Middleware({ type: 'before', priority: 100 })
 export class LoggerMiddleware implements ExpressMiddlewareInterface {
 	use(request: Request, response: Response, next: NextFunction): void {
+		if (process.env.NODE_ENV === 'test') {
+			return next();
+		}
+
 		const start = Date.now();
 		const { method, url, ip } = request;
 

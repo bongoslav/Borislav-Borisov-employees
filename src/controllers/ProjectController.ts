@@ -1,4 +1,4 @@
-import { JsonController, Get, Post, Put, Delete, Param, Body, Authorized } from 'routing-controllers';
+import { JsonController, Get, Post, Put, Delete, Param, Body, Authorized, HttpCode, NotFoundError } from 'routing-controllers';
 import { Service } from 'typedi';
 import { ProjectService } from '../services/ProjectService';
 
@@ -21,21 +21,34 @@ export class ProjectController {
     @Authorized()
     @Get('/:id')
     async getOne(@Param('id') id: number) {
-        return this.projectService.findById(id);
+        try {
+            return await this.projectService.findById(id);
+        } catch (error: any) {
+            throw new NotFoundError('Project not found');
+        }
     }
 
     @Post()
+    @HttpCode(201)
     async create(@Body() project: ProjectDto) {
         return this.projectService.create(project);
     }
 
     @Put('/:id')
     async update(@Param('id') id: number, @Body() project: Partial<ProjectDto>) {
-        return this.projectService.update(id, project);
+        try {
+            return await this.projectService.update(id, project);
+        } catch (error: any) {
+            throw new NotFoundError('Project not found');
+        }
     }
 
     @Delete('/:id')
     async delete(@Param('id') id: number) {
-        return this.projectService.delete(id);
+        try {
+            return await this.projectService.delete(id);
+        } catch (error: any) {
+            throw new NotFoundError('Project not found');
+        }
     }
 }

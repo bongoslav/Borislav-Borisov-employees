@@ -7,6 +7,18 @@ const logFormat = printf(({ level, message, timestamp }) => {
     return `[${timestamp}] ${level}: ${message}`;
 });
 
+const getTransports = () => {
+    if (process.env.NODE_ENV === 'test') {
+        return [
+            new winston.transports.Console({ silent: true })
+        ];
+    }
+    
+    return [
+        new winston.transports.Console()
+    ];
+};
+
 @Service()
 class Logger {
     private logger: winston.Logger;
@@ -19,9 +31,7 @@ class Logger {
                 colorize(),
                 logFormat
             ),
-            transports: [
-                new winston.transports.Console()
-            ]
+            transports: getTransports()
         });
     }
 

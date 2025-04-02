@@ -20,7 +20,8 @@
         "strictBindCallApply": true,
         "noImplicitThis": true,
         "alwaysStrict": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        // "isolatedModules": true
     },
     "include": [
         "src/**/*"

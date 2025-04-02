@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Container } from 'typedi';
-import { PrismaClient } from '../../generated/prisma';
+import { UserService } from '../services/UserService';
 
-// Create a mock Prisma client
+// First create the mock objects
 const mockPrisma = {
     user: {
         findUnique: jest.fn(),
@@ -35,10 +35,28 @@ const mockPrisma = {
     $disconnect: jest.fn(),
 };
 
-// Mock the PrismaClient
-jest.mock('../../generated/prisma', () => {
+// Create a mock UserService
+const mockUserService = {
+    findByEmail: jest.fn(),
+    findById: jest.fn(),
+    findAll: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+};
+
+// Create a mock PrismaClient class that returns our mockPrisma
+const MockPrismaClient = jest.fn(() => mockPrisma);
+
+// Mock modules
+jest.mock('../../generated/prisma', () => ({
+    PrismaClient: MockPrismaClient
+}));
+
+// Mock UserService
+jest.mock('../services/UserService', () => {
     return {
-        PrismaClient: jest.fn().mockImplementation(() => mockPrisma),
+        UserService: jest.fn().mockImplementation(() => mockUserService)
     };
 });
 
@@ -57,6 +75,9 @@ jest.mock('jsonwebtoken', () => ({
 beforeAll(() => {
     // Reset container to clear dependencies between tests
     Container.reset();
+    
+    // Register mock UserService with the container
+    Container.set(UserService, mockUserService);
 });
 
 beforeEach(() => {
@@ -64,4 +85,4 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-export { mockPrisma }; 
+export { mockPrisma, mockUserService }; 

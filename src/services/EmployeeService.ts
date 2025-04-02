@@ -1,5 +1,6 @@
 import { Service } from 'typedi';
 import { prisma } from '../app';
+import { HttpError } from 'routing-controllers';
 
 @Service()
 export class EmployeeService {
@@ -13,7 +14,7 @@ export class EmployeeService {
         });
 
         if (!employee) {
-            throw new Error('Employee not found');
+            throw new HttpError(404, 'Employee not found');
         }
 
         return employee;
