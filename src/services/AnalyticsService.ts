@@ -79,7 +79,7 @@ export class AnalyticsService {
 					create: { id: projectId },
 				});
 
-				// Upsert EmployeeProject to prevent unique constraint violation
+				// upsert EmployeeProject to prevent unique constraint violation
 				await prisma.employeeProject.upsert({
 					where: {
 						employeeId_projectId_dateFrom_dateTo: {

@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { UserService } from './UserService';
+import { HttpError } from 'routing-controllers';
 
 @Service()
 export class AuthService {
@@ -10,19 +11,13 @@ export class AuthService {
     async login(credentials: { email: string, password: string }) {
         const user = await this.userService.findByEmail(credentials.email);
         if (!user) {
-            return {
-                success: false,
-                message: 'User not found'
-            }
+            throw new HttpError(404, 'User not found');
         }
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
         if (!isPasswordValid) {
-            return {
-                success: false,
-                message: 'Invalid password'
-            }
+            throw new HttpError(401, 'Invalid password');
         }
 
         const token = this.generateToken(user.id);
@@ -41,10 +36,7 @@ export class AuthService {
         const existingUser = await this.userService.findByEmail(userData.email);
 
         if (existingUser) {
-            return {
-                success: false,
-                message: 'User not found'
-            }
+            throw new HttpError(400, 'User already exists');
         }
 
         const user = await this.userService.create({
