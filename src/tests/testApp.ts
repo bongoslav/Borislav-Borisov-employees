@@ -12,18 +12,18 @@ import { AnalyticsController } from '../controllers/AnalyticsController';
 import { AuthController } from '../controllers/AuthController';
 
 export function createTestApp(): Express {
-  useContainer(Container);
-  
-  return createExpressServer({
-    controllers: [
-      EmployeeController,
-      ProjectController,
-      AnalyticsController,
-      AuthController
-    ],
-    middlewares: [LoggerMiddleware, ErrorHandlerMiddleware],
-    routePrefix: '/api/v1',
-    authorizationChecker,
-    defaultErrorHandler: false
-  });
+    useContainer(Container);
+
+    return createExpressServer({
+        controllers: [
+            EmployeeController,
+            ProjectController,
+            AnalyticsController,
+            AuthController
+        ],
+        middlewares: [LoggerMiddleware, ErrorHandlerMiddleware],
+        routePrefix: '/api/v1',
+        authorizationChecker,
+        defaultErrorHandler: false
+    });
 } 

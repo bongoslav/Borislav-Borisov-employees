@@ -5,15 +5,15 @@ import { AuthService } from '../services/AuthService';
 @JsonController('/auth')
 @Service()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService) { }
 
-  @Post('/login')
-  async login(@Body() credentials: { email: string; password: string }) {
-    return this.authService.login(credentials);
-  }
+    @Post('/login')
+    async login(@Body() credentials: { email: string; password: string }) {
+        return this.authService.login(credentials);
+    }
 
-  @Post('/register')
-  async register(@Body() userData: { name: string; email: string; password: string }) {
-    return this.authService.register(userData);
-  }
+    @Post('/register')
+    async register(@Body() userData: { name: string; email: string; password: string }) {
+        return this.authService.register(userData);
+    }
 }
