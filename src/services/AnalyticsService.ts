@@ -3,7 +3,6 @@ import { prisma } from "../app";
 import fs from "fs";
 import csv from "csv-parser";
 import { differenceInDays } from "date-fns";
-import { logger } from "utils/logger";
 
 interface CollaborationTime {
 	emp1Id: number;
@@ -62,7 +61,7 @@ export class AnalyticsService {
 	}
 
 	private async processChunk(chunk: any[]) {
-		logger.info(`Processing chunk of ${chunk.length} rows...`);
+		console.log(`Processing chunk of ${chunk.length} rows...`);
 
 		await Promise.all(
 			chunk.map(async (data) => {
@@ -101,7 +100,7 @@ export class AnalyticsService {
 			})
 		);
 
-		logger.info(`Chunk processed successfully.`);
+		console.log(`Chunk processed successfully.`);
 	}
 
 	async findLongestCollaboration(): Promise<{

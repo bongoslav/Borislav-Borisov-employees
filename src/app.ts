@@ -7,7 +7,6 @@ dotenv.config();
 
 import { authorizationChecker } from './middlewares/authChecker';
 import { PrismaClient } from '../generated/prisma';
-import { logger } from './utils/logger';
 import { LoggerMiddleware } from './middlewares/loggerMiddleware';
 import { ErrorHandlerMiddleware } from './middlewares/errorHandler';
 
@@ -33,13 +32,13 @@ const PORT = process.env.PORT || 3000;
 async function startServer() {
 	try {
 		await prisma.$connect();
-		logger.info('Database connection established');
+		console.log('Database connection established');
 
 		app.listen(PORT, () => {
-			logger.info(`Server is running on port ${PORT}`);
+			console.log(`Server is running on port ${PORT}`);
 		});
 	} catch (error) {
-		logger.error('Error connecting to database:', error);
+		console.error('Error connecting to database:', error);
 		await prisma.$disconnect();
 		process.exit(1);
 	}
