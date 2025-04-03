@@ -1,11 +1,28 @@
 # Employee Management Application
+## Prerequisites
+
+- npm  
+or
+- Docker
+- Docker Compose
+
+
+## Run the application
+```
+npm install
+```
+
+```
+npm run dev
+```
+
+Tests:
+```
+npm run test
+```
 
 ## Docker Setup
 
-### Prerequisites
-
-- Docker
-- Docker Compose
 
 ### Running with Docker
 
