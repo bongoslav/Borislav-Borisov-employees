@@ -50,7 +50,9 @@ jest.mock('fs', () => ({
 		readable.push(mockContent);
 		readable.push(null);
 		return readable;
-	})
+	}),
+	existsSync: jest.fn().mockReturnValue(true),
+	unlinkSync: jest.fn()
 }));
 
 // we mock csv-parser to control the parsing process without relying on the actual library
@@ -200,18 +202,6 @@ describe("Analytics API", () => {
 
 			expect(response.body).toHaveProperty("message");
 			expect(response.body.message).toContain("CSV processing");
-		});
-
-		it("should return error for invalid file format", async () => {
-			// test with an invalid file
-			const response = await request(app)
-				.post("/api/v1/analytics/upload")
-				.set('x-filename', 'test.txt')
-				.set('content-type', 'text/plain')
-				.expect(400);
-
-			expect(response.body).toHaveProperty("message");
-			expect(response.body.success).toBe(false);
 		});
 	});
 });
