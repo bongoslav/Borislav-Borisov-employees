@@ -1,14 +1,7 @@
-import { Get, Post, Authorized, UploadedFile, Controller, HttpError, BadRequestError } from 'routing-controllers';
+import { Get, Post, Authorized, UploadedFile, Controller } from 'routing-controllers';
 import { Service } from 'typedi';
 import { AnalyticsService } from '../services/AnalyticsService';
-import { upload } from '../middlewares/multerConfig';
-
-interface EmployeeProjectDto {
-    employeeId: number;
-    projectId: number;
-    dateFrom: Date;
-    dateTo?: Date | null;
-}
+import { upload, removeFile } from '../middlewares/multerConfig';
 
 @Controller('/analytics')
 @Service()
@@ -18,24 +11,36 @@ export class AnalyticsController {
     @Authorized()
     @Get('/longest-collaboration')
     async getLongestCollaboration() {
-        return this.analyticsService.findLongestCollaboration();
+        try {
+            return await this.analyticsService.findLongestCollaboration();
+        } catch (error: any) {
+            return { 
+                success: false, 
+                message: 'Failed to calculate collaboration data', 
+                error: error.message 
+            };
+        }
     }
 
     @Post('/upload')
-    async uploadCsv(@UploadedFile('file', { options: upload }) file: Express.Multer.File) {
+    async uploadCsv(@UploadedFile('file', { options: upload, required: true }) file: Express.Multer.File) {
         if (!file) {
-            throw new BadRequestError('No file uploaded');
-        }
-        
-        // Check if the file is a CSV
-        if (!file.mimetype.includes('csv') && !file.originalname.endsWith('.csv')) {
-            throw new BadRequestError('Invalid file format. Please upload a CSV file.');
+            return { success: false, message: 'No file uploaded' };
         }
         
         try {
-            return await this.analyticsService.processCSV(file);
+            const result = await this.analyticsService.processCSV(file);
+            return { success: true, ...result };
         } catch (error: any) {
-            throw new HttpError(400, `Error processing CSV: ${error.message}`);
+            // cLean up the file on error
+            if (file && file.path) {
+                removeFile(file.path);
+            }
+            
+            return { 
+                success: false, 
+                message: error.message || 'Error processing file' 
+            };
         }
     }
 }

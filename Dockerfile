@@ -16,6 +16,9 @@ RUN npx prisma generate
 # Copy the rest of the application
 COPY . .
 
+# Create uploads directory
+RUN mkdir -p uploads && chmod 777 uploads
+
 # Build the TypeScript app
 RUN npm run build
 
@@ -27,4 +30,4 @@ ENV NODE_ENV=production
 ENV DATABASE_URL=file:/app/prisma/dev.db
 
 # Run database migrations and start the application
-CMD npx prisma migrate deploy && node dist/src/app.js 
+CMD npx prisma migrate deploy && node -r tsconfig-paths/register dist/app.js 

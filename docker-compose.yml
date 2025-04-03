@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -13,4 +11,6 @@ services:
     volumes:
       # Persist SQLite database file
       - ./prisma/dev.db:/app/prisma/dev.db
+      # Persist uploads directory
+      - ./uploads:/app/uploads
     restart: unless-stopped 
